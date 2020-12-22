@@ -68,7 +68,8 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-)
+        src/SystemSetting.cpp
+        src/InitKeyFrame.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}

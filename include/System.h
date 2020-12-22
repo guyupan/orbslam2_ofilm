@@ -122,7 +122,14 @@ public:
     std::vector<MapPoint*> GetTrackedMapPoints();
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 
+    void SaveMap(const string &filename);
+
+    void LoadMap(const string &filename);
+
+
 private:
+
+    std::string mySettingFile;
 
     // Input sensor
     eSensor mSensor;

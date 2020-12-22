@@ -21,4 +21,7 @@ Vocabulary/ORBvoc.txt
 build/
 *~
 lib/
-
+.vscode/
+cmake-build-debug/
+map.bin
+.idea

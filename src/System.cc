@@ -35,7 +35,7 @@ namespace ORB_SLAM2
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
                const bool bUseViewer):mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),mbActivateLocalizationMode(false),
-        mbDeactivateLocalizationMode(false)
+        mbDeactivateLocalizationMode(false), mySettingFile(strSettingsFile)
 {
     // Output welcome message
     cout << endl <<
@@ -492,5 +492,18 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
     unique_lock<mutex> lock(mMutexState);
     return mTrackedKeyPointsUn;
 }
+
+void System::SaveMap(const string &filename)
+{
+    mpMap->Save(filename);
+}
+
+    void System::LoadMap(const string &filename)
+    {
+        SystemSetting* mySystemSetting = new SystemSetting(mpVocabulary);
+
+        mySystemSetting->LoadSystemSetting(mySettingFile);
+        mpMap->Load(filename,mySystemSetting);
+    }
 
 } //namespace ORB_SLAM
