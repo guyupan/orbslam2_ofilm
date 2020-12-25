@@ -282,7 +282,7 @@ void Map::SaveKeyFrame( ofstream &f, KeyFrame* kf )
         }
     }
 
-    void Map::Load ( const string &filename, SystemSetting* mySystemSetting)
+    void Map::Load ( const string &filename, SystemSetting* mySystemSetting, KeyFrameDatabase* kfd)
     {
         cerr << "Map.cc :: Map reading from:"<<filename<<endl;
         ifstream f;
@@ -314,6 +314,7 @@ void Map::SaveKeyFrame( ofstream &f, KeyFrame* kf )
         {
             KeyFrame* kf = LoadKeyFrame(f, mySystemSetting);
             AddKeyFrame(kf);
+            kfd->add(kf);
             kf_by_order.push_back(kf);
 
         }

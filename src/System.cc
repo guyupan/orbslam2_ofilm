@@ -54,7 +54,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         cout << "RGB-D" << endl;
 
     //Check settings file
-    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ); //读取配置文件
     if(!fsSettings.isOpened())
     {
        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
@@ -66,7 +66,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
     mpVocabulary = new ORBVocabulary();
-    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);//加载ORB词典
     if(!bVocLoad)
     {
         cerr << "Wrong path to vocabulary. " << endl;
@@ -75,17 +75,17 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
     cout << "Vocabulary loaded!" << endl << endl;
 
-    //Create KeyFrame Database
+    //Create KeyFrame Database 创建关键帧数据集
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
-    //Create the Map
+    //Create the Map 创建地图
     mpMap = new Map();
 
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
     mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
 
-    //Initialize the Tracking thread
+    //Initialize the Tracking thread 初始化跟踪线程
     //(it will live in the main thread of execution, the one that called this constructor)
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
@@ -226,13 +226,13 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
         cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
         exit(-1);
     }
-
+    ActivateLocalizationMode(); 
     // Check mode change
     {
         unique_lock<mutex> lock(mMutexMode);
-        if(mbActivateLocalizationMode)
+        if(mbActivateLocalizationMode) //若激活定位模式
         {
-            mpLocalMapper->RequestStop();
+            mpLocalMapper->RequestStop(); //取消局部建图
 
             // Wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
@@ -270,6 +270,24 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 
     return Tcw;
 }
+
+cv::Mat System::LocalizeMonocular(const cv::Mat &im, const double &timestamp)
+    {
+        if(mSensor!=MONOCULAR)
+        {
+            cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
+            exit(-1);
+        }
+
+        cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
+
+        unique_lock<mutex> lock2(mMutexState);
+        mTrackingState = mpTracker->mState;
+        mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
+        mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+
+        return Tcw;
+    }
 
 void System::ActivateLocalizationMode()
 {
@@ -498,12 +516,12 @@ void System::SaveMap(const string &filename)
     mpMap->Save(filename);
 }
 
-    void System::LoadMap(const string &filename)
+void System::LoadMap(const string &filename)
     {
         SystemSetting* mySystemSetting = new SystemSetting(mpVocabulary);
 
         mySystemSetting->LoadSystemSetting(mySettingFile);
-        mpMap->Load(filename,mySystemSetting);
+        mpMap->Load(filename,mySystemSetting, mpKeyFrameDatabase);
     }
 
 } //namespace ORB_SLAM

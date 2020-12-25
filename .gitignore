@@ -25,3 +25,4 @@ lib/
 cmake-build-debug/
 map.bin
 .idea
+data/

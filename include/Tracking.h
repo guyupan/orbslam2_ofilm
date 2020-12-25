@@ -119,7 +119,7 @@ protected:
 
     // Main tracking function. It is independent of the input sensor.
     void Track();
-
+    void Localize();
     // Map initialization for stereo and RGB-D
     void StereoInitialization();
 
@@ -148,6 +148,7 @@ protected:
     // points in the map. Still tracking will continue if there are enough matches with temporal points.
     // In that case we are doing visual odometry. The system will try to do relocalization to recover
     // "zero-drift" localization to the map.
+    // 在仅执行定位的情况下，与地图没有匹配的点时为true.该情况下执行视觉里程计，系统会试着执行重定位来恢复相对于地图的无偏定位。
     bool mbVO;
 
     //Other Thread Pointers

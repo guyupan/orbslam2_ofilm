@@ -35,26 +35,27 @@
 namespace ORB_SLAM2
 {
 
-class KeyFrame;
-class Frame;
+class KeyFrame; //关键帧
+class Frame; //图像帧
 
 
-class KeyFrameDatabase
+class KeyFrameDatabase //关键帧数据集
 {
 public:
 
     KeyFrameDatabase(const ORBVocabulary &voc);
 
-   void add(KeyFrame* pKF);
+   void add(KeyFrame* pKF); //添加关键帧
 
-   void erase(KeyFrame* pKF);
+   void erase(KeyFrame* pKF); //擦除关键帧
 
-   void clear();
+   void clear(); //清除所有
 
-   // Loop Detection
+   void Load(const string& filename);
+   // Loop Detection 检测回环候选帧
    std::vector<KeyFrame *> DetectLoopCandidates(KeyFrame* pKF, float minScore);
 
-   // Relocalization
+   // Relocalization 重定位
    std::vector<KeyFrame*> DetectRelocalizationCandidates(Frame* F);
 
 protected:

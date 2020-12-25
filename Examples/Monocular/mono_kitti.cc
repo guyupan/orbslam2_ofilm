@@ -40,6 +40,12 @@ void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
 
 int main(int argc, char **argv)
 {
+//    char buffer[256];
+//    char *val = getcwd(buffer, sizeof(buffer));
+//    if (val) {
+//        std::cout << buffer << std::endl;
+//    }
+
     if(argc != 4)
     {
         cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
@@ -47,19 +53,20 @@ int main(int argc, char **argv)
     }
 
     // Retrieve paths to images
-    vector<string> vstrImageFilenames;
-    vector<double> vTimestamps;
+    vector<string> vstrImageFilenames; //保存图像名
+    vector<double> vTimestamps; //保存时间戳
     LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
 
     int nImages = vstrImageFilenames.size();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    //初始化系统
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
 
-    SLAM.LoadMap("map.bin");
+    //SLAM.LoadMap("map.bin");
 
     // Vector for tracking time statistics
-    vector<float> vTimesTrack;
+    vector<float> vTimesTrack; //保存跟踪时间
     vTimesTrack.resize(nImages);
 
     cout << endl << "-------" << endl;
@@ -87,6 +94,7 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
+        // 执行单目跟踪
         SLAM.TrackMonocular(im,tframe);
 
 #ifdef COMPILEDWITHC11
@@ -102,7 +110,7 @@ int main(int argc, char **argv)
         // Wait to load the next frame
         double T=0;
         if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
+            T = vTimestamps[ni+1]-tframe; //距下一帧时间戳的间隔
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
 
